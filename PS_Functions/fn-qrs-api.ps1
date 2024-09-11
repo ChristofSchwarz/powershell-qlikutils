@@ -1,4 +1,20 @@
-# Skip this error: The underlying connection was closed - Added by Dhruv
+# configuration to reach Qlik Sense QRS API
+$conn = @{
+    "server_url" = "https://localhost:4242"
+    "auth_header" = @{
+                "X-Qlik-User" = "UserDirectory=INTERNAL;UserId=sa_repository"
+            }
+}
+
+# get the Qlik Certificate from the Certificate Store into var $cert
+$cert = Get-ChildItem -Path "Cert:\CurrentUser\My" | Where {$_.Subject -like "*QlikClient*"}
+If ($cert.Length -eq 0) {
+    log "QlikClient certificate not found in Certificate Store. Are you running this script as Qlik service user and on the central node?"
+    Exit
+} 
+
+
+# The following line will skip the error "The underlying connection was closed"
 [Net.ServicePointManager]::SecurityProtocol = [Net.SecurityProtocolType]::Tls -bor [Net.SecurityProtocolType]::Tls11 -bor [Net.SecurityProtocolType]::Tls12
 
 # Helper function to ignore SSL/TLS certificate validation errors
@@ -132,3 +148,4 @@ function QRS_API {
     }
     return $res
 }
+
