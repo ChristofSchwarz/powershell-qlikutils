@@ -9,8 +9,9 @@ $conn = @{
 # get the Qlik Certificate from the Certificate Store into var $cert
 $cert = Get-ChildItem -Path "Cert:\CurrentUser\My" | Where {$_.Subject -like "*QlikClient*"}
 If ($cert.Length -eq 0) {
-    log "QlikClient certificate not found in Certificate Store. Are you running this script as Qlik service user and on the central node?"
-    Exit
+    Write-Host -F Red "QlikClient certificate not found in Certificate Store."
+    Write-Host -F Yellow "Are you running this script as Qlik service user and on the central node?"
+    Throw "Stop further execution"
 } 
 
 
