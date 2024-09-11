@@ -30,22 +30,21 @@ param (
 # parent folder as this backup_script.ps1 file is in.
 
 $this = $($MyInvocation.MyCommand.Name)
+$scriptDirectory = Split-Path -Parent $MyInvocation.MyCommand.Path
+$logfilename = "$scriptDirectory\Log\$this-$(Get-Date -Format "yyyy-MM-dd_HH-mm-ss").txt" 
 
+# include file to communicate with QRS API
 . "$PSScriptRoot\PS_Functions\fn-qrs-api.ps1"
-. "$PSScriptRoot\PS_Functions\init.ps1"
 
 $justSimulate = $false # if $true, no QVF export will be made, just printed on screen and log
 
-$StartTime = Get-Date -UFormat "%Y%m%d_%H%M%S"
-$scriptDirectory = Split-Path -Parent $MyInvocation.MyCommand.Path
 
 # if Log Folder does not exist, create it now.
 if (-not (Test-Path -Path "$scriptDirectory\Log" -PathType "Container")) {
     New-Item -Path "$scriptDirectory\Log" -ItemType "Directory" | Out-Null
 }
-# $LOG_PATH = 'D:\Qlik_Sense\02-Acceptance\Sense_Storage\Backup\Log\'+$StartTime+'_Info.txt'
-$LOG_PATH = "$scriptDirectory\Log\$StartTime.txt"
-start-transcript -path $LOG_PATH -Append  # start transscripting into log file
+
+Start-Transcript -path $logfilename -Append  # start transscripting into Log file
 Write-Host -b Black "Running as user $(WhoAmI) on node $(Hostname)"
 
 ###############################################################################################################################
@@ -238,13 +237,6 @@ Write-Host "File Backup Completed into folder '$todaysBackupFolder'"
 
 }
 
-
-###############################################################################################################################
-#       END NICELY 
-###############################################################################################################################
-
-$EndTime = Get-Date -UFormat "%Y%m%d-%H-%M-%S"
-Write-Host "The whole backup and copy process started at $StartTime and ended at $EndTime"
 
 ###############################################################################################################################
 #       CLEANUP FOLDERS
